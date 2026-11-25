@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f5f0">
+  <title>학교 탈출 레이스</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202b39;
+      --muted: #748092;
+      --blue: #4778e8;
+      --orange: #f39b45;
+      --track: #e7a36f;
+      --track-dark: #d98b59;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 34px 20px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 50% 0%, #fff 0%, transparent 58%),
+        #f3f2ed;
+      color: var(--ink);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .game {
+      width: min(100%, 900px);
+      overflow: hidden;
+      border: 1px solid #e8e7e1;
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 24px 70px #27354b14;
+    }
+
+    .top {
+      padding: 30px 38px 23px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #78869a;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .16em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 5vw, 36px);
+      letter-spacing: -.055em;
+      line-height: 1.15;
+    }
+
+    .sub {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .round {
+      flex: 0 0 auto;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: #f2f5fb;
+      color: #66748a;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .scoreboard {
+      padding: 0 38px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      color: #647187;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .score {
+      min-width: 24px;
+      color: var(--ink);
+      font-size: 19px;
+      text-align: center;
+    }
+
+    .score-divider { color: #a7afbb; }
+
+    .track-wrap { padding: 0 20px; }
+    .pre-round .track-wrap { display: none; }
+
+    .race-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 118px;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .race-main { min-width: 0; }
+
+    .active-item {
+      min-height: 112px;
+      padding: 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1px solid #e6eaf1;
+      border-radius: 17px;
+      background: #f7f8fb;
+      text-align: center;
+    }
+
+    .active-item-label {
+      color: #78869a;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    .active-item-name {
+      color: #34445d;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .scenery {
+      height: 83px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px 18px 0 0;
+      background: linear-gradient(180deg, #dceefa 0%, #f3f9f8 100%);
+    }
+
+    .sun {
+      position: absolute;
+      top: 17px;
+      right: 12%;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: #ffd879;
+      box-shadow: 0 0 0 9px #ffd87930;
+    }
+
+    .cloud {
+      position: absolute;
+      top: 24px;
+      left: 18%;
+      width: 56px;
+      height: 17px;
+      border-radius: 20px;
+      background: #ffffffc9;
+    }
+
+    .cloud::before, .cloud::after {
+      position: absolute;
+      bottom: 3px;
+      border-radius: 50%;
+      background: inherit;
+      content: "";
+    }
+
+    .cloud::before { left: 10px; width: 22px; height: 22px; }
+    .cloud::after { left: 27px; width: 16px; height: 16px; }
+
+    .school {
+      position: absolute;
+      bottom: 0;
+      left: 43%;
+      width: 86px;
+      height: 51px;
+      border: 3px solid #9db8c6;
+      border-bottom: 0;
+      background: #f7d8a4;
+      opacity: .8;
+    }
+
+    .school::before {
+      position: absolute;
+      top: -19px;
+      left: -3px;
+      width: 0;
+      height: 0;
+      border-right: 43px solid transparent;
+      border-bottom: 19px solid #df9480;
+      border-left: 43px solid transparent;
+      content: "";
+    }
+
+    .school::after {
+      position: absolute;
+      right: 8px;
+      bottom: 0;
+      left: 8px;
+      height: 21px;
+      background: repeating-linear-gradient(90deg, #b6d2d7 0 11px, transparent 11px 20px);
+      content: "";
+    }
+
+    .track {
+      position: relative;
+      padding: 12px 0;
+      border-radius: 0 0 18px 18px;
+      background: var(--track);
+      box-shadow: inset 0 5px 0 #f4c095;
+    }
+
+    .lane {
+      height: 117px;
+      position: relative;
+      border-bottom: 2px dashed #fff9;
+    }
+
+    .lane:last-of-type { border-bottom: 0; }
+
+    .lane-label {
+      position: absolute;
+      z-index: 1;
+      top: 13px;
+      left: 12px;
+      padding: 5px 8px;
+      border-radius: 7px;
+      background: #ffffffc9;
+      color: #6a6471;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .start-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 68px;
+      width: 3px;
+      background: #fff9;
+    }
+
+    .finish {
+      position: absolute;
+      z-index: 2;
+      top: -12px;
+      right: 8%;
+      bottom: -12px;
+      width: 16px;
+      background:
+        linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%),
+        linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%);
+      background-position: 0 0, 6px 6px;
+      background-size: 12px 12px;
+      border-right: 2px solid #fff;
+      border-left: 2px solid #fff;
+    }
+
+    .finish-label {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .runner {
+      position: absolute;
+      z-index: 3;
+      top: 25px;
+      left: 68px;
+      width: 60px;
+      height: 76px;
+      transition: left 100ms linear;
+    }
+
+    .runner svg { width: 100%; height: 100%; overflow: visible; }
+    .runner .legs { transform-box: fill-box; transform-origin: 50% 15%; }
+    .racing .runner .legs { animation: run .18s infinite alternate ease-in-out; }
+    .racing .runner.computer .legs { animation-duration: .25s; }
+    .finished .runner .legs { animation: none; }
+
+    @keyframes run {
+      from { transform: rotate(-17deg) translateY(-1px); }
+      to { transform: rotate(17deg) translateY(1px); }
+    }
+
+    .road-dash {
+      position: absolute;
+      right: 9%;
+      bottom: 15px;
+      left: 12%;
+      height: 4px;
+      opacity: .38;
+      background: repeating-linear-gradient(90deg, #fff 0 23px, transparent 23px 42px);
+    }
+
+    .panel {
+      padding: 25px 38px 29px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 16px 24px;
+    }
+
+    .status { min-height: 45px; }
+    .status-title { margin: 0; font-size: 17px; font-weight: 900; }
+    .status-note { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+
+    .meter {
+      grid-column: 1 / -1;
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #eef0f4;
+    }
+
+    .meter-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #78b9fa, var(--blue));
+      transition: width 100ms linear;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .run-button {
+      min-width: 154px;
+      min-height: 54px;
+      padding: 0 23px;
+      border: 0;
+      border-radius: 16px;
+      background: var(--blue);
+      box-shadow: 0 5px 0 #315dbd, 0 9px 20px #4778e83b;
+      color: white;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .08s, box-shadow .08s, background .15s;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .run-button:hover { background: #3e6fdf; }
+    .run-button:active, .run-button.pressed {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #315dbd, 0 3px 10px #4778e833;
+    }
+
+    .run-button:disabled {
+      cursor: default;
+      opacity: .62;
+      transform: none;
+      box-shadow: 0 4px 0 #315dbd;
+    }
+
+    .reset-button {
+      width: 48px;
+      height: 48px;
+      border: 1px solid #e8ebf0;
+      border-radius: 14px;
+      background: #fff;
+      color: #69768a;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .reset-button:hover { background: #f6f8fb; }
+    button:focus-visible { outline: 3px solid #f6bb5e; outline-offset: 3px; }
+
+    .result {
+      grid-column: 1 / -1;
+      display: none;
+      padding: 15px 18px;
+      border: 1px solid #f0dfb8;
+      border-radius: 15px;
+      background: #fff8e9;
+      color: #74521e;
+      font-size: 16px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .result.show { display: block; animation: pop .3s ease-out; }
+    .hidden { display: none !important; }
+
+    .game.celebration-mode > :not(.celebration) { display: none !important; }
+
+    .celebration {
+      min-height: 430px;
+      padding: 38px 28px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 0%, #fff8df 0%, #fff 62%);
+      text-align: center;
+    }
+
+    .game.celebration-mode > .celebration { display: flex; }
+
+    .celebration .eyebrow {
+      margin-bottom: 12px;
+      color: #d09537;
+    }
+
+    .celebration h2 {
+      margin: 0;
+      color: #29364a;
+      font-size: clamp(24px, 5vw, 36px);
+      letter-spacing: -.04em;
+      line-height: 1.35;
+    }
+
+    .celebration-note {
+      margin: 12px 0 0;
+      color: #748092;
+      font-size: 14px;
+    }
+
+    .celebration-characters {
+      margin-top: 24px;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: clamp(34px, 10vw, 100px);
+    }
+
+    .celebration-person {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      color: #647187;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .celebration-person svg {
+      width: 96px;
+      height: 122px;
+      overflow: visible;
+    }
+
+    .outside-return {
+      display: none;
+      min-height: 34px;
+      margin: -16px 0 18px;
+      padding: 0 13px;
+      border: 1px solid #dce2e9;
+      border-radius: 10px;
+      background: #fff;
+      color: #657187;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    body.worksite-active #backToRaceButton,
+    body.celebration-active #backToRaceButton { display: block; }
+
+    .roulette {
+      grid-column: 1 / -1;
+      min-height: 360px;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #e9edf4;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at center, #fff 0%, #f8f9fc 72%);
+    }
+
+    .roulette-heading {
+      margin: 0 0 18px;
+      color: #58667c;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .roulette-stage {
+      position: relative;
+      padding: 12px;
+    }
+
+    .roulette-wheel {
+      position: relative;
+      width: clamp(230px, 30vw, 280px);
+      aspect-ratio: 1;
+      overflow: hidden;
+      border: 7px solid #fff;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        #ef8d56 0deg 120deg,
+        #668ce8 120deg 240deg,
+        #5dbd9a 240deg 360deg
+      );
+      box-shadow: 0 8px 24px #26365026, 0 0 0 3px #dce2ed;
+      transform: rotate(0deg);
+      transition: transform 3s cubic-bezier(.12, .72, .12, 1);
+      will-change: transform;
+    }
+
+    .roulette-label {
+      position: absolute;
+      width: 92px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.35;
+      text-align: center;
+      text-shadow: 0 1px 3px #21314c70;
+      transform: translate(-50%, -50%);
+    }
+
+    .roulette-label-fast { top: 31%; left: 76%; }
+    .roulette-label-slow { top: 79%; left: 50%; }
+    .roulette-label-none { top: 31%; left: 24%; }
+
+    .roulette-center {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      left: 50%;
+      width: 68px;
+      height: 68px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 5px solid #fff;
+      border-radius: 50%;
+      background: #263650;
+      box-shadow: 0 2px 8px #1f2c443b;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: background .15s, box-shadow .15s, transform .15s;
+    }
+
+    .roulette-center:hover:not(:disabled) {
+      background: #354c6d;
+      box-shadow: 0 3px 12px #1f2c4455;
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+
+    .roulette-center:disabled {
+      cursor: wait;
+      opacity: .8;
+    }
+
+    .roulette-center:focus-visible {
+      outline: 3px solid #f6bb5e;
+      outline-offset: 4px;
+    }
+
+    .race-control {
+      padding: 18px 0 4px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .roulette-pointer {
+      position: absolute;
+      z-index: 3;
+      top: 0;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-top: 24px solid #e85c54;
+      border-right: 14px solid transparent;
+      border-left: 14px solid transparent;
+      filter: drop-shadow(0 2px 1px #543b3b40);
+      transform: translateX(-50%);
+    }
+
+    .roulette-note {
+      min-height: 20px;
+      margin: 15px 0 0;
+      color: #778398;
+      font-size: 14px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .worksite {
+      display: none;
+      width: min(100%, 900px);
+      overflow: hidden;
+      border: 1px solid #e8e7e1;
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 24px 70px #27354b24;
+    }
+
+    body.worksite-active #game { display: none; }
+    body.worksite-active #worksite { display: block; }
+
+    .worksite-header {
+      padding: 28px 34px 20px;
+      color: #fff;
+      background: #34445d;
+    }
+
+    .worksite-header .eyebrow { color: #d7dfeb; }
+    .worksite-header h1 { font-size: clamp(24px, 5vw, 34px); }
+    .worksite-header .sub { color: #e0e6ef; }
+
+    .site-scene {
+      min-height: 390px;
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(180deg, #a9d8e8 0%, #d7ebdf 57%, #899567 57%, #687652 100%);
+    }
+
+    .site-sun {
+      position: absolute;
+      top: 28px;
+      right: 12%;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #ffe28c;
+      box-shadow: 0 0 0 12px #ffe28c35;
+    }
+
+    .site-cloud {
+      position: absolute;
+      top: 76px;
+      left: 12%;
+      width: 75px;
+      height: 20px;
+      border-radius: 99px;
+      background: #ffffffb8;
+    }
+
+    .site-scaffold {
+      position: absolute;
+      top: 0;
+      right: 5%;
+      width: 31%;
+      height: 58%;
+      opacity: .48;
+      border-right: 8px solid #526273;
+      border-left: 8px solid #526273;
+      background: repeating-linear-gradient(180deg, transparent 0 59px, #526273 59px 67px);
+    }
+
+    .site-scaffold::before,
+    .site-scaffold::after {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: #526273;
+      content: "";
+    }
+
+    .site-scaffold::before { left: 32%; transform: skew(-25deg); }
+    .site-scaffold::after { right: 32%; transform: skew(25deg); }
+
+    .site-warning {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 17px;
+      background: repeating-linear-gradient(135deg, #f8c64f 0 18px, #333c46 18px 36px);
+    }
+
+    .workbench {
+      width: min(100%, 570px);
+      position: relative;
+      z-index: 1;
+      padding: 26px 26px 22px;
+      border: 1px solid #ffffffa1;
+      border-radius: 24px;
+      background: #fffdf5ed;
+      box-shadow: 0 15px 36px #26344735;
+      text-align: center;
+    }
+
+    .beat-display {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 15px;
+      display: grid;
+      place-items: center;
+      border: 6px solid #dfe5ec;
+      border-radius: 50%;
+      background: #fff;
+      color: #647187;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 4px 12px #27354b1a;
+    }
+
+    .beat-display.active { animation: beat-pulse 1s infinite linear; }
+
+    @keyframes beat-pulse {
+      0%, 18%, 100% { transform: scale(1.13); border-color: #f0ad4e; background: #fff2d6; color: #875719; }
+      36%, 82% { transform: scale(1); border-color: #dfe5ec; background: #fff; color: #647187; }
+    }
+
+    .plank {
+      min-height: 100px;
+      position: relative;
+      margin: 12px 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 4vw, 28px);
+      border: 8px solid #875432;
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 22px, #9f704c55 23px 25px),
+        linear-gradient(105deg, #c99563, #e0b27a 50%, #be8957);
+      box-shadow: inset 0 3px 7px #68452755, 0 8px 0 #60432f;
+    }
+
+    .nail {
+      width: 24px;
+      height: 42px;
+      position: relative;
+    }
+
+    .nail::before {
+      position: absolute;
+      top: 7px;
+      left: 10px;
+      width: 4px;
+      height: 32px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #86919b, #eef2f4 48%, #68727b);
+      content: "";
+    }
+
+    .nail::after {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      width: 12px;
+      height: 5px;
+      border-radius: 3px;
+      background: #78838b;
+      box-shadow: 0 1px 2px #4f3927;
+      content: "";
+    }
+
+    .nail.driven::before { top: 0; height: 8px; }
+    .nail.driven::after { top: 0; }
+    .nail.current { filter: drop-shadow(0 0 5px #ffe38b); }
+    .nail.done { opacity: .38; }
+
+    .worksite-status {
+      min-height: 22px;
+      margin: 0 0 14px;
+      color: #58667c;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .worksite-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(6px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 15px 10px; }
+      .game { border-radius: 22px; }
+      .top { padding: 24px 22px 18px; }
+      .scoreboard { padding: 0 22px 18px; }
+      .track-wrap { padding: 0 12px; }
+      .race-stage { grid-template-columns: minmax(0, 1fr) 82px; gap: 8px; }
+      .active-item { min-height: 96px; padding: 10px 4px; }
+      .active-item-name { font-size: 14px; }
+      .panel { padding: 23px 22px 24px; }
+      .lane { height: 108px; }
+      .runner { top: 21px; width: 54px; }
+      .start-line { left: 53px; }
+      .finish { right: 8%; }
+      .run-button { min-width: 138px; }
+      .roulette { min-height: 320px; padding: 18px 10px; }
+      .roulette-wheel { width: min(230px, 68vw); }
+      .roulette-label { width: 78px; font-size: 12px; }
+      .roulette-center { width: 58px; height: 58px; }
+      .race-control { padding-top: 15px; }
+      .worksite-header { padding: 24px 22px 18px; }
+      .site-scene { min-height: 350px; padding: 16px; }
+      .workbench { padding: 22px 14px 18px; }
+      .plank { gap: clamp(7px, 3vw, 16px); }
+      .nail { transform: scale(.85); }
+      .celebration { min-height: 390px; padding: 30px 18px; }
+      .celebration-person svg { width: 78px; height: 100px; }
+      .outside-return { margin-top: -8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      .roulette-wheel { transition-duration: 3s !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game pre-round" id="game">
+    <header class="top">
+      <div>
+        <p class="eyebrow">AFTER SCHOOL · GRAND PRIX</p>
+        <h1>학교 탈출 레이스</h1>
+        <p class="sub">누가 먼저 결승선을 통과할까요?</p>
+      </div>
+      <span class="round" id="roundBadge">ROUND 1 / 3</span>
+    </header>
+
+    <div class="scoreboard" aria-label="현재 승점">
+      <span>YOU</span><span class="score" id="playerScore">0</span>
+      <span class="score-divider">:</span>
+      <span class="score" id="computerScore">0</span><span>COMPUTER</span>
+    </div>
+
+    <section class="track-wrap" aria-label="달리기 경기장">
+      <div class="race-stage">
+        <div class="race-main">
+          <div class="scenery" aria-hidden="true">
+            <span class="sun"></span><span class="cloud"></span><span class="school"></span>
+          </div>
+          <div class="track">
+            <div class="start-line" aria-hidden="true"></div>
+            <div class="finish" aria-label="결승선"><span class="finish-label">FINISH</span></div>
+            <div class="lane">
+              <span class="lane-label">YOU</span>
+              <div class="runner player" id="playerRunner" style="--progress: 0%">
+                <svg class="student" viewBox="0 0 60 76" role="img" aria-label="학생 캐릭터">
+                  <ellipse cx="30" cy="72" rx="17" ry="3" fill="#613b2b" opacity=".17"/>
+                  <g class="legs" fill="none" stroke="#28354b" stroke-width="6" stroke-linecap="round">
+                    <path d="M25 51 21 64 14 68"/><path d="M36 51 40 63 48 67"/>
+                  </g>
+                  <path d="M12 67q-3 0-5 3l12 1q2-2-1-4zM45 66q3-1 6 2l-1 3-12-1q0-3 7-4z" fill="#f3f4f6"/>
+                  <path d="M20 31q10-6 20 0l-2 23H21z" fill="#4778e8"/>
+                  <path d="M26 31h8l-1 7h-6z" fill="#fff"/>
+                  <path d="M20 33 14 43l5 3 6-9M40 33l6 8-4 4-6-8" fill="#f2bc8c"/>
+                  <circle cx="30" cy="21" r="11" fill="#f2bc8c"/>
+                  <path d="M19 21q-1-14 12-14 12 1 11 14-4-7-10-10-5 5-13 5z" fill="#303345"/>
+                  <circle cx="26" cy="22" r="1.2" fill="#303345"/><circle cx="34" cy="22" r="1.2" fill="#303345"/>
+                  <path d="M27 27q3 2 6 0" fill="none" stroke="#bd6f63" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="lane">
+              <span class="lane-label">COMPUTER</span>
+              <div class="runner computer" id="computerRunner" style="--progress: 0%">
+                <svg class="student" viewBox="0 0 60 76" role="img" aria-label="컴퓨터 학생 캐릭터">
+                  <ellipse cx="30" cy="72" rx="17" ry="3" fill="#613b2b" opacity=".17"/>
+                  <g class="legs" fill="none" stroke="#28354b" stroke-width="6" stroke-linecap="round">
+                    <path d="M25 51 21 64 14 68"/><path d="M36 51 40 63 48 67"/>
+                  </g>
+                  <path d="M12 67q-3 0-5 3l12 1q2-2-1-4zM45 66q3-1 6 2l-1 3-12-1q0-3 7-4z" fill="#f3f4f6"/>
+                  <path d="M20 31q10-6 20 0l-2 23H21z" fill="#f0a04a"/>
+                  <path d="M26 31h8l-1 7h-6z" fill="#fff"/>
+                  <path d="M20 33 14 43l5 3 6-9M40 33l6 8-4 4-6-8" fill="#efbc92"/>
+                  <circle cx="30" cy="21" r="11" fill="#efbc92"/>
+                  <path d="M19 21q-1-14 12-14 12 1 11 14-4-7-10-10-5 5-13 5z" fill="#4a332d"/>
+                  <circle cx="26" cy="22" r="1.2" fill="#303345"/><circle cx="34" cy="22" r="1.2" fill="#303345"/>
+                  <path d="M27 27q3 2 6 0" fill="none" stroke="#bd6f63" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="road-dash" aria-hidden="true"></div>
+          </div>
+          <div class="race-control">
+            <button class="run-button hidden" id="runButton" type="button">달리기! <span aria-hidden="true">⚡</span></button>
+          </div>
+        </div>
+        <aside class="active-item" aria-label="이번 라운드 아이템">
+          <span class="active-item-label">ITEM</span>
+          <strong class="active-item-name" id="activeItemName">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="status" aria-live="polite">
+        <p class="status-title" id="statusTitle">1라운드 준비!</p>
+        <p class="status-note" id="statusNote">룰렛을 돌려 이번 라운드 아이템을 뽑으세요.</p>
+      </div>
+      <div class="controls">
+        <button class="reset-button" id="resetButton" type="button" aria-label="다시 시작" title="다시 시작">↻</button>
+      </div>
+      <div class="roulette" id="roulette">
+        <p class="roulette-heading">이번 라운드 아이템</p>
+        <div class="roulette-stage">
+          <span class="roulette-pointer" aria-hidden="true"></span>
+          <div class="roulette-wheel" id="rouletteWheel" role="img" aria-label="속도 UP, 속도 DOWN, X 룰렛">
+            <span class="roulette-label roulette-label-fast">속도 UP</span>
+            <span class="roulette-label roulette-label-slow">속도 DOWN</span>
+            <span class="roulette-label roulette-label-none">X</span>
+          </div>
+          <button class="roulette-center" id="spinButton" type="button" aria-label="룰렛 돌리기">GO!</button>
+        </div>
+        <p class="roulette-note" id="rouletteNote" aria-live="polite">룰렛을 돌려 아이템을 정하세요!</p>
+      </div>
+      <div class="meter" role="progressbar" aria-label="나의 결승선까지 진행도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="meter-fill" id="meterFill"></div>
+      </div>
+      <div class="result" id="result" role="status"></div>
+    </section>
+    <section class="celebration hidden" id="celebration" aria-live="polite">
+      <p class="eyebrow" id="celebrationEyebrow">MISSION COMPLETE</p>
+      <h2 id="celebrationTitle">축하드립니다!<br>노가다 고수가 되셨습니다!</h2>
+      <p class="celebration-note" id="celebrationNote">나무 판자에 못 5개를 모두 박았어요.</p>
+      <div class="celebration-characters">
+        <div class="celebration-person">
+          <div id="celebrationPlayer"></div>
+          <span>YOU</span>
+        </div>
+        <div class="celebration-person">
+          <div id="celebrationComputer"></div>
+          <span>COMPUTER</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main class="worksite" id="worksite">
+    <header class="worksite-header">
+      <p class="eyebrow">LEVEL 2 · CONSTRUCTION SITE</p>
+      <h1>학교 탈출 노가다 현장 가기</h1>
+      <p class="sub">스페이스바를 누르면 바로 망치질! 나무 판자에 못 5개를 박아보세요.</p>
+    </header>
+    <section class="site-scene" aria-label="노가다 현장 미니게임">
+      <span class="site-sun" aria-hidden="true"></span>
+      <span class="site-cloud" aria-hidden="true"></span>
+      <span class="site-scaffold" aria-hidden="true"></span>
+      <div class="workbench">
+        <div class="beat-display active" id="beatDisplay" aria-label="박자에 맞춰 누르세요">BEAT</div>
+        <div class="plank" id="plank" aria-label="못을 박을 나무 판자">
+          <span class="nail current" aria-hidden="true"></span>
+          <span class="nail" aria-hidden="true"></span>
+          <span class="nail" aria-hidden="true"></span>
+          <span class="nail" aria-hidden="true"></span>
+          <span class="nail" aria-hidden="true"></span>
+        </div>
+        <p class="worksite-status" id="worksiteStatus" aria-live="polite">노란 박자에 맞춰 스페이스바를 누르세요! (또는 버튼)</p>
+        <div class="worksite-controls">
+          <button class="run-button" id="hammerButton" type="button">망치질! 🔨</button>
+        </div>
+      </div>
+      <span class="site-warning" aria-hidden="true"></span>
+    </section>
+  </main>
+  <button class="outside-return" id="backToRaceButton" type="button">레이스로 돌아가기</button>
+
+  <script>
+    (() => {
+      const finishDistance = 100;
+      const maxRounds = 3;
+      const winsToMatch = 2;
+      const game = document.getElementById("game");
+      const playerRunner = document.getElementById("playerRunner");
+      const computerRunner = document.getElementById("computerRunner");
+      const initialPlayerMarkup = playerRunner.innerHTML;
+      const initialComputerMarkup = computerRunner.innerHTML;
+      const roundBadge = document.getElementById("roundBadge");
+      const playerScoreLabel = document.getElementById("playerScore");
+      const computerScoreLabel = document.getElementById("computerScore");
+      const spinButton = document.getElementById("spinButton");
+      const runButton = document.getElementById("runButton");
+      const resetButton = document.getElementById("resetButton");
+      const statusTitle = document.getElementById("statusTitle");
+      const statusNote = document.getElementById("statusNote");
+      const result = document.getElementById("result");
+      const rouletteNote = document.getElementById("rouletteNote");
+      const activeItemName = document.getElementById("activeItemName");
+      const roulette = document.getElementById("roulette");
+      const rouletteWheel = document.getElementById("rouletteWheel");
+      const hammerButton = document.getElementById("hammerButton");
+      const backToRaceButton = document.getElementById("backToRaceButton");
+      const worksiteStatus = document.getElementById("worksiteStatus");
+      const celebration = document.getElementById("celebration");
+      const celebrationEyebrow = document.getElementById("celebrationEyebrow");
+      const celebrationTitle = document.getElementById("celebrationTitle");
+      const celebrationNote = document.getElementById("celebrationNote");
+      const celebrationPlayer = document.getElementById("celebrationPlayer");
+      const celebrationComputer = document.getElementById("celebrationComputer");
+      const beatDisplay = document.getElementById("beatDisplay");
+      const nails = Array.from(document.querySelectorAll(".nail"));
+      const meter = document.querySelector(".meter");
+      const meterFill = document.getElementById("meterFill");
+      let playerDistance = 0;
+      let computerDistance = 0;
+      let playerWins = 0;
+      let computerWins = 0;
+      let roundNumber = 1;
+      let playerMultiplier = 1;
+      let phase = "roulette";
+      let running = false;
+      let raceStartTime = 0;
+      let frameId = 0;
+      let spinToken = 0;
+      let wheelRotation = 0;
+      let nailCount = 0;
+      let beatEpoch = 0;
+      let lastHitBeat = -1;
+
+      const items = [
+        { label: "속도 UP", multiplier: 1.3, note: "속도 UP! 이번 라운드 속도가 빨라져요." },
+        { label: "속도 DOWN", multiplier: 0.9, note: "속도 DOWN! 이번 라운드는 조금 느려져요." },
+        { label: "X", multiplier: 1, note: "X! 이번 라운드는 효과가 없어요." }
+      ];
+
+      function setProgress(element, distance) {
+        const lane = element.closest(".lane");
+        const startLine = document.querySelector(".start-line");
+        const start = startLine.getBoundingClientRect().left - lane.getBoundingClientRect().left
+          - element.offsetWidth / 2;
+        const finish = lane.clientWidth * 0.92 - element.offsetWidth / 2;
+        const progress = Math.min(distance, finishDistance) / finishDistance;
+        element.style.left = (start + (finish - start) * progress) + "px";
+      }
+
+      function updateMeter() {
+        const progress = Math.round(Math.min(playerDistance, finishDistance));
+        meterFill.style.width = progress + "%";
+        meter.setAttribute("aria-valuenow", progress);
+      }
+
+      function updateScoreboard() {
+        playerScoreLabel.textContent = playerWins;
+        computerScoreLabel.textContent = computerWins;
+        roundBadge.textContent = "ROUND " + roundNumber + " / " + maxRounds;
+      }
+
+      function showRunButton(label) {
+        runButton.innerHTML = label + ' <span aria-hidden="true">⚡</span>';
+        runButton.classList.remove("hidden");
+        runButton.disabled = false;
+      }
+
+      function showSpinButton() {
+        spinButton.textContent = "GO!";
+        spinButton.classList.remove("hidden");
+        spinButton.disabled = false;
+        runButton.classList.add("hidden");
+      }
+
+      function resetRound() {
+        cancelAnimationFrame(frameId);
+        running = false;
+        playerDistance = 0;
+        computerDistance = 0;
+        game.classList.remove("racing", "finished");
+        playerRunner.innerHTML = initialPlayerMarkup;
+        computerRunner.innerHTML = initialComputerMarkup;
+        setProgress(playerRunner, 0);
+        setProgress(computerRunner, 0);
+        updateMeter();
+      }
+
+      async function spinRoulette() {
+        if (phase !== "roulette" && phase !== "roundover") return;
+        if (phase === "roundover") {
+          roundNumber += 1;
+          updateScoreboard();
+          resetRound();
+        }
+        phase = "spinning";
+        const token = ++spinToken;
+        spinButton.disabled = true;
+        roulette.classList.remove("hidden");
+        result.classList.remove("show");
+        result.textContent = "";
+        statusTitle.textContent = "룰렛 돌리는 중...";
+        statusNote.textContent = "이번 라운드 아이템이 곧 결정돼요!";
+        rouletteNote.textContent = "두근두근...";
+
+        const roll = Math.random();
+        const selected = roll < 0.2 ? 0 : roll < 0.6 ? 1 : 2;
+        const targetRotation = (360 - (selected * 120 + 60)) % 360;
+        const currentRotation = ((wheelRotation % 360) + 360) % 360;
+        const alignmentRotation = (targetRotation - currentRotation + 360) % 360;
+        wheelRotation += 360 * 6 + alignmentRotation;
+        rouletteWheel.style.transform = "rotate(" + wheelRotation + "deg)";
+        await new Promise(resolve => window.setTimeout(resolve, 3000));
+        if (token !== spinToken) return;
+
+        const item = items[selected];
+        playerMultiplier = item.multiplier;
+        activeItemName.textContent = item.label;
+        phase = "ready";
+        rouletteNote.textContent = item.note;
+        statusTitle.textContent = roundNumber + "라운드 시작!";
+        statusNote.textContent = "스페이스바 또는 달리기 버튼을 눌러 출발하세요.";
+        roulette.classList.add("hidden");
+        game.classList.remove("pre-round");
+        showRunButton("달리기 시작");
+      }
+
+      function startRace() {
+        if (phase !== "ready") return;
+        phase = "racing";
+        running = true;
+        game.classList.remove("pre-round");
+        game.classList.add("racing");
+        roulette.classList.add("hidden");
+        statusTitle.textContent = roundNumber + "라운드 진행 중!";
+        statusNote.textContent = "스페이스바를 빠르게 눌러 달리세요!";
+        showRunButton("달리기! (SPACE)");
+        raceStartTime = performance.now();
+        frameId = requestAnimationFrame(tick);
+      }
+
+      function finish(winner) {
+        running = false;
+        phase = "roundover";
+        game.classList.remove("racing");
+        game.classList.add("finished");
+        playerRunner.innerHTML = workerSvg("#4778e8");
+        computerRunner.innerHTML = workerSvg("#f0a04a");
+        if (winner === "player") playerWins += 1;
+        else computerWins += 1;
+        updateScoreboard();
+        runButton.classList.add("hidden");
+
+        const matchWinner = playerWins >= winsToMatch
+          ? "player"
+          : computerWins >= winsToMatch ? "computer" : null;
+        if (matchWinner) {
+          phase = "complete";
+          statusTitle.textContent = matchWinner === "player" ? "최종 승리! 🎉" : "최종 패배";
+          statusNote.textContent = playerWins + " : " + computerWins + "으로 경기가 끝났어요.";
+          if (matchWinner === "player") {
+            playerRunner.innerHTML = workerSvg("#4778e8", "happy");
+            computerRunner.innerHTML = workerSvg("#f0a04a", "angry");
+            result.innerHTML = '<button class="run-button worksite-start" type="button">학교 탈출 노가다 현장 가기</button>';
+          } else {
+            playerRunner.innerHTML = workerSvg("#4778e8", "sad");
+            computerRunner.innerHTML = workerSvg("#f0a04a", "laugh");
+            result.textContent = "다음 기회에...";
+            celebrationEyebrow.textContent = "RACE OVER";
+            celebrationTitle.textContent = "다음 기회에...";
+            celebrationNote.textContent = "이번에는 컴퓨터가 이겼어요. 다시 도전해 보세요.";
+            celebrationPlayer.innerHTML = workerSvg("#4778e8", "sad");
+            celebrationComputer.innerHTML = workerSvg("#f0a04a", "laugh");
+            celebration.classList.remove("hidden");
+            game.classList.add("celebration-mode");
+            document.body.classList.add("celebration-active");
+            backToRaceButton.textContent = "다시 도전하기";
+          }
+          roulette.classList.add("hidden");
+          resetButton.setAttribute("aria-label", "새 게임 시작");
+          resetButton.title = "새 게임 시작";
+        } else {
+          const roundWinner = winner === "player" ? "내가" : "컴퓨터가";
+          game.classList.add("pre-round");
+          statusTitle.textContent = roundNumber + "라운드 승리!";
+          statusNote.textContent = roundWinner + " 이겼어요. 현재 점수 " + playerWins + " : " + computerWins;
+          result.textContent = winner === "player" ? "내가 한 점 획득!" : "컴퓨터가 한 점 획득!";
+          roulette.classList.remove("hidden");
+          showSpinButton("다음 라운드 룰렛");
+        }
+        result.classList.add("show");
+      }
+
+      function workerSvg(color, mood) {
+        const face = {
+          happy: {
+            eyes: '<path d="M23 24q3-4 6 0M31 24q3-4 6 0" fill="none" stroke="#303345" stroke-width="1.8" stroke-linecap="round"/>',
+            mouth: '<path d="M26 28q4 6 8 0" fill="none" stroke="#a95753" stroke-width="1.6" stroke-linecap="round"/>'
+          },
+          sad: {
+            eyes: '<circle cx="26" cy="24" r="1.4" fill="#303345"/><circle cx="34" cy="24" r="1.4" fill="#303345"/>',
+            mouth: '<path d="M26 32q4-5 8 0" fill="none" stroke="#a95753" stroke-width="1.6" stroke-linecap="round"/><path d="M22 27q-2 4 0 7" fill="none" stroke="#69aede" stroke-width="2" stroke-linecap="round"/>'
+          },
+          laugh: {
+            eyes: '<path d="M23 23q3 4 6 0M31 23q3 4 6 0" fill="none" stroke="#303345" stroke-width="1.8" stroke-linecap="round"/>',
+            mouth: '<path d="M25 27q5 10 10 0q-5 3-10 0" fill="#873f48" stroke="#873f48" stroke-width="1.3" stroke-linejoin="round"/>'
+          },
+          angry: {
+            eyes: '<path d="m23 22 5 2m4-2 5-2" fill="none" stroke="#303345" stroke-width="1.8" stroke-linecap="round"/><circle cx="26" cy="25" r="1.2" fill="#303345"/><circle cx="34" cy="23" r="1.2" fill="#303345"/>',
+            mouth: '<path d="M27 31q3-3 6 0" fill="none" stroke="#a95753" stroke-width="1.6" stroke-linecap="round"/>'
+          }
+        }[mood] || {
+          eyes: '<circle cx="26" cy="24" r="1.2" fill="#303345"/><circle cx="34" cy="24" r="1.2" fill="#303345"/>',
+          mouth: '<path d="M27 29q3 2 6 0" fill="none" stroke="#bd6f63" stroke-width="1.4" stroke-linecap="round"/>'
+        };
+        const moodLabel = { happy: "기쁜 표정", sad: "슬픈 표정", laugh: "비웃는 표정", angry: "화난 표정" };
+        return `<svg viewBox="0 0 60 76" role="img" aria-label="노가다 작업복 캐릭터, ${moodLabel[mood] || "평범한 표정"}">
+          <ellipse cx="30" cy="72" rx="17" ry="3" fill="#613b2b" opacity=".17"/>
+          <g class="legs" fill="none" stroke="#28354b" stroke-width="6" stroke-linecap="round">
+            <path d="M25 51 21 64 14 68"/><path d="M36 51 40 63 48 67"/>
+          </g>
+          <path d="M12 67q-3 0-5 3l12 1q2-2-1-4zM45 66q3-1 6 2l-1 3-12-1q0-3 7-4z" fill="#f3f4f6"/>
+          <path d="M20 32q10-6 20 0l-2 22H21z" fill="${color}"/>
+          <path d="M28 34h4v18h-4zM21 43h18v3H21z" fill="#ffe38b"/>
+          <path d="M20 34 14 43l5 3 6-9M40 34l6 8-4 4-6-8" fill="#f2bc8c"/>
+          <circle cx="30" cy="21" r="11" fill="#f2bc8c"/>
+          <path d="M19 19q1-10 11-11 10 1 11 11l-2 2H21z" fill="#f4c44e"/>
+          <path d="M18 19h24v4H18z" fill="#e7ae35"/>
+          ${face.eyes}${face.mouth}
+        </svg>`;
+      }
+
+      function tick(time) {
+        if (!running) return;
+        computerDistance = Math.min(finishDistance, (time - raceStartTime) * finishDistance / 2900);
+        setProgress(playerRunner, playerDistance);
+        setProgress(computerRunner, computerDistance);
+        updateMeter();
+
+        if (playerDistance >= finishDistance || computerDistance >= finishDistance) {
+          finish(playerDistance >= finishDistance && playerDistance >= computerDistance ? "player" : "computer");
+          return;
+        }
+        frameId = requestAnimationFrame(tick);
+      }
+
+      function pressRun() {
+        if (phase !== "racing") return;
+        playerDistance = Math.min(playerDistance + 4.5 * playerMultiplier, finishDistance);
+        setProgress(playerRunner, playerDistance);
+        updateMeter();
+        runButton.classList.add("pressed");
+        window.setTimeout(() => runButton.classList.remove("pressed"), 90);
+        if (playerDistance >= finishDistance) finish("player");
+      }
+
+      function openWorksite() {
+        document.body.classList.add("worksite-active");
+        phase = "nailing";
+        nailCount = 0;
+        lastHitBeat = -1;
+        nails.forEach((nail, index) => {
+          nail.classList.remove("driven", "done", "current");
+          if (index === 0) nail.classList.add("current");
+        });
+        beatDisplay.classList.remove("active");
+        void beatDisplay.offsetWidth;
+        beatEpoch = performance.now();
+        beatDisplay.classList.add("active");
+        hammerButton.disabled = false;
+        hammerButton.textContent = "망치질! 🔨";
+        worksiteStatus.textContent = "노란 박자에 맞춰 스페이스바를 누르세요! (또는 버튼)";
+        backToRaceButton.textContent = "레이스로 돌아가기";
+      }
+
+      function hammerNail() {
+        if (phase !== "nailing" || nailCount >= nails.length) return;
+        const beatDuration = 1000;
+        const elapsed = performance.now() - beatEpoch;
+        const beatPhase = elapsed % beatDuration;
+        const beatOffset = Math.min(beatPhase, beatDuration - beatPhase);
+        const beatIndex = Math.round(elapsed / beatDuration);
+        if (beatOffset > 180) {
+          worksiteStatus.textContent = "박자가 빗나갔어요! 노란 박자에 맞춰 다시 눌러보세요.";
+          return;
+        }
+        if (beatIndex === lastHitBeat) {
+          worksiteStatus.textContent = "한 박자에는 못 하나만 박을 수 있어요!";
+          return;
+        }
+        lastHitBeat = beatIndex;
+        nails[nailCount].classList.remove("current");
+        nails[nailCount].classList.add("driven", "done");
+        nailCount += 1;
+        if (nailCount === nails.length) {
+          worksiteStatus.textContent = "작업 완료! 못 5개를 모두 박았어요! 🎉";
+          hammerButton.textContent = "작업 완료!";
+          hammerButton.disabled = true;
+          celebrationEyebrow.textContent = "MISSION COMPLETE";
+          celebrationTitle.innerHTML = "축하드립니다!<br>노가다 고수가 되셨습니다!";
+          celebrationNote.textContent = "나무 판자에 못 5개를 모두 박았어요.";
+          celebrationPlayer.innerHTML = workerSvg("#4778e8", "happy");
+          celebrationComputer.innerHTML = workerSvg("#f0a04a", "angry");
+          celebration.classList.remove("hidden");
+          game.classList.add("celebration-mode");
+          document.body.classList.remove("worksite-active");
+          document.body.classList.add("celebration-active");
+          phase = "celebrated";
+          return;
+        }
+        nails[nailCount].classList.add("current");
+        worksiteStatus.textContent = "좋아요! " + nailCount + " / " + nails.length + "개 완료";
+      }
+
+      function resetGame() {
+        spinToken += 1;
+        document.body.classList.remove("worksite-active", "celebration-active");
+        game.classList.remove("celebration-mode");
+        celebration.classList.add("hidden");
+        roundNumber = 1;
+        playerWins = 0;
+        computerWins = 0;
+        playerMultiplier = 1;
+        activeItemName.textContent = "—";
+        phase = "roulette";
+        resetRound();
+        game.classList.add("pre-round");
+        updateScoreboard();
+        showSpinButton();
+        roulette.classList.remove("hidden");
+        rouletteWheel.style.transition = "none";
+        rouletteWheel.style.transform = "rotate(0deg)";
+        wheelRotation = 0;
+        window.requestAnimationFrame(() => {
+          rouletteWheel.style.transition = "";
+        });
+        rouletteNote.textContent = "룰렛을 돌려 아이템을 정하세요!";
+        statusTitle.textContent = "1라운드 준비!";
+        statusNote.textContent = "룰렛을 돌려 이번 라운드 아이템을 뽑으세요.";
+        result.classList.remove("show");
+        result.textContent = "";
+        backToRaceButton.textContent = "레이스로 돌아가기";
+        resetButton.setAttribute("aria-label", "다시 시작");
+        resetButton.title = "다시 시작";
+      }
+
+      spinButton.addEventListener("click", spinRoulette);
+
+      result.addEventListener("click", event => {
+        if (event.target instanceof Element && event.target.closest(".worksite-start")) openWorksite();
+      });
+
+      hammerButton.addEventListener("click", hammerNail);
+      backToRaceButton.addEventListener("click", resetGame);
+
+      runButton.addEventListener("click", () => {
+        if (phase === "ready") startRace();
+        pressRun();
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.repeat) return;
+        if (phase === "nailing" && (event.code === "Space" || event.code === "Enter")) {
+          event.preventDefault();
+          hammerNail();
+          return;
+        }
+        if (event.code !== "Space" || (phase !== "ready" && phase !== "racing")) return;
+        event.preventDefault();
+        if (phase === "ready") startRace();
+        pressRun();
+      });
+
+      resetButton.addEventListener("click", resetGame);
+
+      updateScoreboard();
+    })();
+  </script>
+</body>
+</html>
